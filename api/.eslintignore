@@ -1,0 +1,7 @@
+docs*/**
+test
+build
+dist
+storage
+node_modules
+experimental
