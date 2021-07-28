@@ -1,0 +1,46 @@
+{
+    "name": "velodrone-tagging-api",
+    "version": "1.0.0",
+    "description": "generic tagging solution",
+    "main": "index.js",
+    "scripts": {
+        "build": "node build.js",
+        "build:prod": "npm run clean && npm run build -- --bundle --minify",
+        "start": "pm2-runtime start ecosystem.config.js",
+        "start:dev": "pm2 start ecosystem.config.js --env development",
+        "start:prod": "pm2 start ecosystem.config.js --env production",
+        "stop:dev": "pm2 delete ecosystem.config.js",
+        "clean": "rm -rf ./make/*",
+        "lint": "eslint .",
+        "test": "nyc mocha"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+git@github.com:mi-sec/velodrone-tagging.git"
+    },
+    "author": "Nick Soggin",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/mi-sec/velodrone-tagging"
+    },
+    "homepage": "https://github.com/mi-sec/velodrone-tagging",
+    "devDependencies": {
+        "chai": "^4.3.4",
+        "chai-http": "^4.3.0",
+        "esbuild": "^0.11.21",
+        "eslint": "^7.26.0",
+        "mocha": "^8.4.0",
+        "nyc": "^15.1.0"
+    },
+    "dependencies": {
+        "@pm2/io": "^5.0.0",
+        "axios": "^0.21.1",
+        "body-parser": "^1.19.0",
+        "config": "^3.3.6",
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "express-pino-logger": "^6.0.0",
+        "formidable": "^1.2.2",
+        "pino": "^6.11.3"
+    }
+}

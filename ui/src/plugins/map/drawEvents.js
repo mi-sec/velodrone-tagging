@@ -7,22 +7,28 @@
 
 // TODO: might need to make this a non-display component
 export function onCreate( evt, ref ) {
-    console.log( evt, ref );
+    console.log( 'drawEvents.onCreate' );
+    // console.log( evt, ref );
     for ( let i = 0; i < evt.features.length; i++ ) {
         const feature = evt.features[ i ];
 
         // if ( feature.properties.type === 'aoi' ) {
         // }
     }
-    console.log( 'draw.create', evt );
+    // console.log( 'draw.create', evt );
 }
 
 export function onUpdate( evt, ref ) {
-    console.log( evt, ref );
-    console.log( 'draw.update', evt );
+    console.log( 'drawEvents.onUpdate' );
+    const data = this.$store.state.map.draw.drawObject.getAll();
+    console.log( data );
+    this.$store.state.map.mapObject.getSource( 'fields' ).setData( data );
+    // console.log( evt, ref );
+    // console.log( 'draw.update', evt );
 }
 
 export function onDelete( evt, ref ) {
-    console.log( evt, ref );
-    console.log( 'draw.delete', evt );
+    console.log( 'drawEvents.onDelete' );
+    // console.log( evt, ref );
+    // console.log( 'draw.delete', evt );
 }

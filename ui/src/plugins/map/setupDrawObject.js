@@ -18,7 +18,7 @@ export default function setupDrawObject( ref, draw ) {
     } );
 
     DrawObject.event.on( 'stop', async function( state ) {
-        console.log( 'here-object', state );
+        // console.log( 'here-object', state );
 
         if ( !ref.$store.state.imagery.currentSource ) {
             // show an error - no source selected
@@ -49,10 +49,10 @@ export default function setupDrawObject( ref, draw ) {
             } );
         }
         catch ( e ) {
-            console.error( e );
+            // console.error( e );
         }
 
-        ref.$store.commit( 'map/refreshTiles' );
+        ref.$store.commit( 'refreshMsaMapDataSource' );
 
         draw.delete( state.polygon.id );
     } );

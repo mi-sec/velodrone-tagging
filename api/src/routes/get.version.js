@@ -3,10 +3,10 @@
 const
     config = require( 'config' );
 
-module.exports.method = 'GET';
+module.exports.method = 'get';
 module.exports.route  = '/version';
 module.exports.exec   = ( req, res ) => {
-    res
+    return res
         .status( 200 )
         .json( { message: `${ config.get( 'name' ) } ${ config.get( 'version' ) }` } );
 };

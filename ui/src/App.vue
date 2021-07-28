@@ -1,5 +1,7 @@
 <template>
     <v-app>
+        <ClassificationBar/>
+
         <AppBar/>
         <LeftSidebar/>
 
@@ -15,20 +17,29 @@
 </template>
 
 <script>
-import AppBar          from '@/components/AppBar';
-import LeftSidebar     from '@/components/LeftSidebar';
-import SnackbarMessage from '@/components/SnackbarMessage';
-import Footer          from '@/components/Footer';
+import { mapActions }    from 'vuex';
+import AppBar            from '@/components/AppBar';
+import LeftSidebar       from '@/components/LeftSidebar';
+import SnackbarMessage   from '@/components/SnackbarMessage';
+import Footer            from '@/components/Footer';
+import ClassificationBar from '@/components/misc/ClassificationBar';
 
 export default {
     name: 'App',
-    components: { AppBar, SnackbarMessage, LeftSidebar, Footer },
-    data: () => ( {} ),
+    components: { ClassificationBar, AppBar, SnackbarMessage, LeftSidebar, Footer },
     beforeCreate() {
         this.$installAxios();
         this.$installLogger();
+        this.$installUtils();
+
+        this.$installApi( process.env.VUE_APP_API_BASE_URL );
     },
-    computed: {}
+    async mounted() {
+        await this.loadApiConfig();
+    },
+    methods: {
+        ...mapActions( [ 'loadApiConfig' ] )
+    }
 };
 </script>
 

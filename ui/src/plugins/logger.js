@@ -4,7 +4,8 @@ import pino from 'pino';
 Vue.use( {
     install() {
         Vue.prototype.$logger = pino( {
-            level: process.env.NODE_ENV === 'production' ? 'error' : 'trace'
+            level: process.env.NODE_ENV === 'production' ? 'warn' :
+                process.env.NODE_ENV === 'debug' ? 'trace' : 'info'
         } );
 
         Vue.prototype.$installLogger = function() {

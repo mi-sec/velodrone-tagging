@@ -1,0 +1,82 @@
+version: '3'
+
+networks:
+  vd_network:
+    driver: bridge
+
+services:
+#  vd_nginx:
+#    container_name: vd_nginx
+#    hostname: vd_nginx
+#    image: nginx
+#    ports:
+#      - 10180:80
+#    volumes:
+#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+#      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+#      - ./api/storage:/usr/share/nginx/storage
+#      - ./ui/dist:/usr/share/nginx/html
+#    restart: always
+#    networks:
+#      - vd_network
+
+
+  vd_postgis:
+    container_name: vd_postgis
+    hostname: vd_postgis
+    image: mdillon/postgis
+    volumes:
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+      - ./db/db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    restart: always
+    networks:
+      - vd_network
+
+
+#  vd_api:
+#    container_name: vd_api
+#    hostname: vd_api
+#    build:
+#      context: ./api
+#      args:
+#        - NPM_REGISTRY=${NPM_REGISTRY:-https://registry.npmjs.org/}
+#        - BUILD_ENV=${BUILD_ENV:-development}
+#    environment:
+#      - BUILD_ENV=${BUILD_ENV:-development}
+#    ports:
+#      - 10100:10100
+#    restart: always
+#    volumes:
+#      - ./api/src:/opt/app/src
+#      - ./api/config:/opt/app/config
+#      - ./api/storage:/opt/app/storage
+#    networks:
+#      - vd_network
+#    depends_on:
+#      - vd_nginx
+#      - vd_postgis
+
+
+#    vd_ui:
+#        build:
+#            context: ./ui
+#            args:
+#                - NPM_REGISTRY=${NPM_REGISTRY:-https://registry.npmjs.org/}
+#        volumes:
+#            - ./ui/dist:/opt/app/dist
+#            - ./ui/package.json:/opt/app/package.json
+#        networks:
+#            - vd_network
+#        depends_on:
+#            - vd_nginx
+
+#    vd_ml:
+#        build:
+#            context: ./ml
+#        volumes:
+#            - ./ml:/opt/app
+#        shm_size: '8gb'
+#        networks:
+#            - vd_network

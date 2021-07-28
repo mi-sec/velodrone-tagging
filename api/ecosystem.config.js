@@ -5,10 +5,12 @@ const
     { resolve }  = require( 'path' ),
     isProduction = process.argv.includes( 'production' );
 
+require( 'dotenv' ).config();
+
 const apps = [
     {
         name,
-        script: resolve( __dirname, isProduction ? './dist/api.js' : './src/entrypoint.api.js' ),
+        script: resolve( __dirname, isProduction ? './api.js' : './src/entrypoint.api.js' ),
         exec_mode: 'cluster',
         instances: isProduction ? 0 : 1,
         instance_var: 'INSTANCE_ID',

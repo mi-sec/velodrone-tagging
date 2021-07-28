@@ -17,12 +17,11 @@ const argsMap = args.reduce( ( map, arg ) => {
 
 require( 'esbuild' ).build( {
     entryPoints: {
-        api: 'entrypoint.api.js',
-        scheduler: 'entrypoint.scheduler.js'
+        api: 'entrypoint.api.js'
     },
-    absWorkingDir: path.join( __dirname, '/src' ),
-    platform: argsMap.get( 'platform' ) || 'node',
-    outdir: argsMap.get( 'outdir' ) || path.resolve( '../dist' ),
+    absWorkingDir: path.join( __dirname, 'src' ),
+    platform: 'node',
+    outdir: path.resolve( './make' ),
     bundle: argsMap.get( 'bundle' ),
     minify: argsMap.get( 'minify' )
 } )

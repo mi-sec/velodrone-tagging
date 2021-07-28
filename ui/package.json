@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
+        "debug": "NODE_ENV=debug vue-cli-service serve",
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint"
@@ -11,7 +12,12 @@
         "@geonet/geohash": "^1.0.16",
         "@mapbox/mapbox-gl-draw": "^1.3.0",
         "@mdi/font": "^5.9.55",
+        "@turf/area": "^6.5.0",
+        "@turf/bbox": "^6.5.0",
+        "@turf/boolean-within": "^6.5.0",
         "@turf/centroid": "^6.4.0",
+        "@turf/distance": "^6.5.0",
+        "@turf/helpers": "^6.5.0",
         "@turf/simplify": "^6.4.0",
         "axios": "^0.21.1",
         "core-js": "^3.6.5",

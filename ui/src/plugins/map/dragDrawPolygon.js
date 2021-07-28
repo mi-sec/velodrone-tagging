@@ -1,8 +1,3 @@
-/** ****************************************************************************************************
- * File: dragDrawPolygon.js
- * Project: tagger
- * @author Nick Soggin <iSkore@users.noreply.github.com> on 09-Aug-2019
- *******************************************************************************************************/
 'use strict';
 
 import doubleClickZoom  from '@mapbox/mapbox-gl-draw/src/lib/double_click_zoom';
@@ -107,7 +102,7 @@ export default function dragDrawPolygon( opts = {} ) {
         state.polygon.updateCoordinate( `0.${ state.currentVertexPosition }`, e.lngLat.lng, e.lngLat.lat );
     };
 
-    console.log( dragDrawPolygon );
+    // console.log( dragDrawPolygon );
 
     dragDrawPolygon.onMouseUp = dragDrawPolygon.onTouchEnd = function( state, e ) {
         dragDrawPolygon.event.emit( 'mouseup', ...arguments );

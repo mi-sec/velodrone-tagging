@@ -7,8 +7,10 @@
         "build": "node build.js",
         "build:prod": "npm run clean && npm run build -- --bundle --minify",
         "start": "pm2-runtime start ecosystem.config.js",
+        "start:dev": "pm2 start ecosystem.config.js --env development",
         "start:prod": "pm2 start ecosystem.config.js --env production",
-        "clean": "rm -rf ./dist/*",
+        "stop:dev": "pm2 delete ecosystem.config.js",
+        "clean": "rm -rf ./make/*",
         "lint": "eslint .",
         "test": "nyc mocha"
     },
@@ -31,14 +33,24 @@
         "nyc": "^15.1.0"
     },
     "dependencies": {
+        "@geonet/geohash": "^1.0.16",
+        "@mapbox/sphericalmercator": "^1.1.0",
         "@pm2/io": "^5.0.0",
+        "@turf/bbox": "^6.5.0",
         "axios": "^0.21.1",
         "body-parser": "^1.19.0",
         "config": "^3.3.6",
         "cors": "^2.8.5",
+        "dotenv": "^10.0.0",
         "express": "^4.17.1",
         "express-pino-logger": "^6.0.0",
+        "fast-json-patch": "^3.0.0-1",
         "formidable": "^1.2.2",
+        "geojson-rewind": "^0.3.1",
+        "knex": "^0.95.8",
+        "knex-postgis": "^0.14.1",
+        "pbf": "^3.2.1",
+        "pg": "^8.6.0",
         "pino": "^6.11.3"
     }
 }

@@ -9,9 +9,9 @@ const
     crypto      = require( 'crypto' );
 
 const
-    logger                   = require( '../services/logger' ),
-    recursivelyReadDirectory = require( '../../utils/recursively-read-directory' ),
-    methodNotAllowed         = require( './method-not-allowed' );
+    logger           = require( '../services/logger' ),
+    routes           = require( '../routes/index' ),
+    methodNotAllowed = require( './method-not-allowed' );
 
 class Server
 {
@@ -64,60 +64,38 @@ class Server
         this.app.use( bodyParser.urlencoded( { extended: false } ) );
         this.app.use( bodyParser.text() );
         this.app.use( bodyParser.json() );
+
+        if ( process.env.NODE_ENV === 'production' ) {
+            this.app.use( '/', express.static( config.get( 'ui.staticFile' ) ) );
+        }
     }
 
-    /**
-     * hookRoute
-     * @param {object} item - item from the api config
-     * @returns {*} - returns item with required execution function
-     */
-    hookRoute( item )
+    bindDocuments()
     {
-        logger.trace( `server.hookRoute ${ item.method } ${ item.route }` );
+        logger.trace( 'server.bindDocuments' );
+        this.app.use( '/docs', express.static( 'docs' ) );
+    }
 
-        // TODO::: add a hook to check for authentication if the handler file requires it
-        const exec = [
-            ( req, res, next ) => ( this.meters.reqMeter.mark(), next() ),
-            ( req, res, next ) => {
-                if ( res ) {
-                    try {
-                        res.set( { 'request-id': crypto.randomUUID() } );
-                        item.exec( req, res, next );
-                    }
-                    catch ( e ) {
-                        res.status( 500 ).json( {
-                            error: 'unknown server error',
-                            ...e
-                        } );
-                    }
-                }
-                else {
-                    res.status( 500 ).json( { error: 'unknown server error' } );
-                }
-            }
-        ];
-
-        item.method = item.method.toLowerCase();
-
-        // hook route to express
-        this.app[ item.method ]( item.route, exec );
-
-        return item;
+    loadRoutes()
+    {
+        logger.trace( 'server.loadRoutes' );
+        this.app.use( '/api', routes( this ) );
     }
 
     routerInitialize()
     {
         logger.trace( 'server.routerInitialize' );
 
-        this.routes.map( ( item ) => this.hookRoute( item ) );
+        this.bindDocuments();
+        this.loadRoutes();
 
         // capture all unhandled routes
-        this.routes.push( this.hookRoute( methodNotAllowed ) );
+        this.app[ methodNotAllowed.method ]( methodNotAllowed.route, methodNotAllowed.exec );
 
         // capture all unhandled errors that might occur
         this.app.use( ( e, req, res, next ) => {
             if ( e ) {
-                res
+                return res
                     .set( {
                         'Access-Control-Allow-Origin': '*',
                         'Access-Control-Max-Age': 1728000,
@@ -131,21 +109,6 @@ class Server
                 next();
             }
         } );
-    }
-
-    async loadRoutes()
-    {
-        logger.trace( 'server.loadRoutes' );
-
-        this.routes = await recursivelyReadDirectory( config.get( 'server.routes' ) );
-        this.routes = this.routes.filter( ( route ) => /([a-z0-9\s_\\.\-():])+(.m?t?jsx?)$/i.test( route ) );
-        this.routes = this.routes.map( ( route ) => require( `${ route }` ) );
-        this.routes = this.routes.sort( ( a ) => a.method.toUpperCase() === 'HEAD' ? -1 : 0 );
-    }
-
-    bindDocuments()
-    {
-        this.app.use( '/docs', express.static( 'docs' ) );
     }
 
     /**
@@ -164,10 +127,6 @@ class Server
 
         // setup express
         this.expressInitialize();
-        await this.loadRoutes();
-
-        this.bindDocuments();
-
         this.routerInitialize();
     }
 
