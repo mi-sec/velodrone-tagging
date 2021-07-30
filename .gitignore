@@ -494,3 +494,7 @@ docs
 storage/manifest
 database.db
 dist
+
+db/db-data
+make/
+

@@ -22,9 +22,7 @@ module.exports.exec   = async ( req, res ) => {
             primaryKey = await getPrimaryKeyColumn( req.params.table ),
             geomColumn = await getGeomColumn( req.params.table );
 
-        let
-            doc = PostgresDB
-                .from( req.params.table );
+        let doc = PostgresDB.from( req.params.table );
 
         if ( req.query.select ) {
             doc = doc.select(
@@ -103,13 +101,10 @@ module.exports.exec   = async ( req, res ) => {
             doc = doc[ 0 ];
         }
 
-        return res
-            .status( 200 )
-            .json( doc );
+        return res.status( 200 ).json( doc );
     }
     catch ( e ) {
-        return res
-            .status( 400 )
-            .json( { message: e } );
+        console.error( e );
+        return res.status( 400 ).json( { message: e } );
     }
 };

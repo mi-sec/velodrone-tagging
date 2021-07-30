@@ -36,6 +36,9 @@ export default {
     },
     async mounted() {
         await this.loadApiConfig();
+
+        const data = this.$api.getAuth();
+        console.log( data );
     },
     methods: {
         ...mapActions( [ 'loadApiConfig' ] )

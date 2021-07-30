@@ -142,7 +142,7 @@ export default {
                 // custom logic for target object input
                 if ( mode === 'target_object' ) {
                     this.setKeyboardInput( true );
-                    this.$store.state.map.targetObjectModal = true;
+                    this.$store.state.targetObjectModal = true;
                 }
             }
         }

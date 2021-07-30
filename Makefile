@@ -7,10 +7,10 @@ else
 		SHELL := /bin/bash
 endif
 
-NODE_EXPECTED=v14.17.1
+NODE_EXPECTED=v14.17.4
 NODE_ACTUAL=`node -v`
 
-PM2_EXPECTED=4.4.1
+PM2_EXPECTED=5.1.0
 PM2_ACTUAL=`pm2 -v`
 
 check:
@@ -21,28 +21,21 @@ check:
 	@if [ "${PM2_EXPECTED}" != "${PM2_ACTUAL}" ]; then echo "Ensure you are running PM2 ${PM2_EXPECTED}"; exit 1; fi
 	@echo "PM2 version correct"
 
-dev: check
-	@echo "starting up the api"
-	npm --prefix ./api install
-	npm --prefix ./api run start:dev
-	npm --prefix ./ui install
-	npm --prefix ./ui run serve
-	@echo "complete"
-
 build: check
-	@echo "starting up the api"
+	@echo "setting up project"
 	@if [ -d "./make/" ]; then rm -rf ./make/; fi
 	mkdir -p ./make/
 	@echo "make directory ready"
 
+	@echo "building api"
 	npm --prefix ./api install
 	npm --prefix ./api run build:prod
 	mv ./api/make/* ./make/
 	mkdir -p ./make/config
 	cp ./api/config/* ./make/config/
-	cp -r ./api/src/routes ./make/routes
 	cp ./api/ecosystem.config.js ./make/ecosystem.config.js
 	cp ./api/package*.json ./make/
+	cp ./api/.env ./make/
 	rm -rf ./api/make
 
 	@echo "******************************"
@@ -58,13 +51,30 @@ build: check
 	@echo "******************************"
 	@echo "********* ui built ***********"
 	@echo "******************************"
-
 	@echo "complete"
 
-# production: build
-#     @echo "install steps"
+dev: check
+	@echo "starting up the api"
+	BUILD_ENV=development docker-compose -f docker-compose.yml up --build vd_postgis
+	npm --prefix ./api install
+	npm --prefix ./api run start:dev
+	npm --prefix ./ui install
+	npm --prefix ./ui run serve
+	@echo "complete"
+
+prod: build
+	@echo "starting up the api"
+	BUILD_ENV=production docker-compose -f docker-compose.yml up --build -d vd_postgis
+	npm --prefix ./make ci
+	npm --prefix ./make run start:prod
+	docker-compose
+	@echo "complete"
 
 clean:
-#     rm -rf ./api/node_modules
-#     rm -rf ./api/dist
 	@echo "Cleaning up..."
+	npm --prefix ./make run stop
+	docker-compose down
+	docker-compose kill
+	docker-compose rm
+	rm -rf ./make
+	@echo "Program Terminated"

@@ -79,8 +79,6 @@ if ( process.env.NODE_ENV !== 'production' ) {
                 return `const ${ declarationName } = require( '.${ requireName }' );`;
             } );
 
-            console.log( dir.join( '\n' ) );
-
             throw new Error( 'Not all routes are registered' );
         }
     } )();

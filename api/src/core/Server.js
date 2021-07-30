@@ -10,7 +10,7 @@ const
 
 const
     logger           = require( '../services/logger' ),
-    routes           = require( '../routes/index' ),
+    routes           = require( '../routes' ),
     methodNotAllowed = require( './method-not-allowed' );
 
 class Server

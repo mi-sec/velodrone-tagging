@@ -11,10 +11,6 @@ BEGIN
 END;
 $$;
 
-GRANT ALL PRIVILEGES ON DATABASE postgres to username;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO username;
-GRANT ALL ON SCHEMA public TO username;
-
 CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE EXTENSION IF NOT EXISTS postgis_topology;
 
@@ -53,3 +49,8 @@ CREATE TABLE IF NOT EXISTS public.target_object
 ALTER TABLE public.geodata       OWNER to username;
 ALTER TABLE public.zone          OWNER to username;
 ALTER TABLE public.target_object OWNER to username;
+
+GRANT ALL PRIVILEGES ON DATABASE postgres to username;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO username;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO username;
+GRANT ALL ON SCHEMA public TO username;

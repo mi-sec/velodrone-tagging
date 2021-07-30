@@ -15,9 +15,8 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import MapboxGL   from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
-import { onCreate, onUpdate, onDelete } from '@/plugins/map/drawEvents';
-import setupDrawAoi                     from '@/plugins/map/setupDrawAoi';
-import setupDrawObject                  from '@/plugins/map/setupDrawObject';
+import setupDrawAoi    from '@/plugins/map/setupDrawAoi';
+import setupDrawObject from '@/plugins/map/setupDrawObject';
 
 MapboxGL.accessToken = 'pk.eyJ1IjoicGFyZWxsaW4iLCJhIjoiY2phNzhveXdwOGp3djMzcGcxYTUweW5lbSJ9.0vACz0ISAPpVAWkHLJ0Mlg';
 
@@ -25,7 +24,38 @@ export default {
     name: 'Map',
     data: () => ( {} ),
     mounted() {
-
+        this.$store.state.map.mapObject = new MapboxGL.Map( {
+            container: 'map',
+            hash: true,
+            customAttribution: 'mi-sec velodrone',
+            // style: 'mapbox://styles/mapbox/light-v10',
+            style: {
+                version: 8,
+                sources: {
+                    'nga-osm-tiles': {
+                        type: 'raster',
+                        tiles: [
+                            'https://osm-1.gs.mil/tiles/default/{z}/{x}/{y}.png',
+                            'https://osm-2.gs.mil/tiles/default/{z}/{x}/{y}.png',
+                            'https://osm-3.gs.mil/tiles/default/{z}/{x}/{y}.png',
+                            'https://osm-4.gs.mil/tiles/default/{z}/{x}/{y}.png'
+                        ],
+                        tileSize: 256
+                    }
+                },
+                layers: [
+                    {
+                        id: 'nga-osm-tiles',
+                        type: 'raster',
+                        source: 'nga-osm-tiles',
+                        minzoom: 0,
+                        maxzoom: 20
+                    }
+                ]
+            },
+            pitchWithRotate: false,
+            preserveDrawingBuffer: true
+        } );
 
         this.$store.state.map.mapObject.on( 'load', () => {
             this.$store.state.map.mapObject.addLayer( {
@@ -67,14 +97,9 @@ export default {
             setupDrawAoi( this, this.$store.state.map.draw.drawObject );
             setupDrawObject( this, this.$store.state.map.draw.drawObject );
 
-            // this.$store.state.map.mapObject.on( 'draw.create', ( evt ) => onCreate( evt, this ) );
-            // this.$store.state.map.mapObject.on( 'draw.update', ( evt ) => onUpdate( evt, this ) );
-            // this.$store.state.map.mapObject.on( 'draw.delete', ( evt ) => onDelete( evt, this ) );
-
             this.$store.state.map.mapObject.addControl( this.$store.state.map.draw.drawObject );
 
             this.$store.subscribe( ( mutation, state ) => {
-                // console.log( mutation );
                 if ( mutation.type === 'toggleZoneSelection' ) {
                     this.$store.state.map.mapObject.off( 'click', this.snapToGeohashBounds );
 
@@ -88,13 +113,14 @@ export default {
             this.$store.state.map.mapObject.on( 'idle', this.addMapData );
         } );
 
-        // this.refreshTargetObjects();
+        this.refreshTargetObjects();
     },
     computed: {
         // ...mapState( [ 'draw' ] ),
         // ...mapState( [ 'map' ] )
     },
     methods: {
+        ...mapActions( [ 'refreshTargetObjects' ] ),
         ...mapMutations( [
             'addMapData',
             'addMapAoi',

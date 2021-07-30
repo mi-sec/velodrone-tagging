@@ -16,21 +16,28 @@
                     <v-row dense>
                         <v-col cols="12">
                             <v-text-field
-                                v-model="object_name"
+                                v-model="layerName"
                                 label="Name *"
                                 :counter="512"
-                                :rules="objectNameRules"
+                                :rules="layerNameRules"
                                 required
                             />
                         </v-col>
                         <v-col cols="12">
                             <v-text-field
-                                v-model="object_description"
-                                label="Description *"
+                                v-model="layerUrl"
+                                label="URL *"
                                 :counter="512"
-                                :rules="objectDescriptionRules"
+                                :rules="layerUrlRules"
                                 required
                             />
+                        </v-col>
+
+                        <v-col cols="12">
+                            <v-checkbox
+                                v-model="isQuerystringUppercase"
+                                label="Uppercase Querystring?"
+                            ></v-checkbox>
                         </v-col>
                     </v-row>
                 </v-form>
@@ -58,7 +65,9 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations } from 'vuex';
+import * as uuid        from 'uuid';
+import BBox             from '@/plugins/geospatial/BBox';
 
 export default {
     name: 'AddExternalLayerForm',
@@ -66,20 +75,17 @@ export default {
         return {
             valid: false,
             lazy: false,
-            object_name: '',
-            objectNameRules: [
-                v => !!v || 'Object name is required',
-                v => ( v && v.length <= 512 ) || 'Object name must be less than 512 characters'
+            layerName: '',
+            layerNameRules: [
+                v => !!v || 'Layer name is required',
+                v => ( v && v.length <= 512 ) || 'Layer name must be less than 512 characters'
             ],
-            object_description: '',
-            objectDescriptionRules: [
-                v => !!v || 'Object description is required',
-                v => ( v && v.length <= 512 ) || 'Object description must be less than 512 characters'
+            layerUrl: '',
+            layerUrlRules: [
+                v => !!v || 'Layer URL is required'
             ],
-            classification: '',
-            scicontrols: '',
-            errorMessage: '',
-            userWarnedAboutDuplicate: false
+            isQuerystringUppercase: false,
+            errorMessage: ''
         };
     },
     methods: {
@@ -89,61 +95,89 @@ export default {
             return this.valid;
         },
         closeWindow() {
-            this.object_name              = '';
-            this.object_description       = '';
-            this.classification           = '';
-            this.scicontrols              = '';
-            this.errorMessage             = '';
-            this.userWarnedAboutDuplicate = false;
-            this.isOpen                   = false;
-            this.valid                    = false;
+            this.layerName              = '';
+            this.layerUrl               = '';
+            this.isQuerystringUppercase = false;
+            this.errorMessage           = '';
+            this.valid                  = false;
 
             this.$refs.form.resetValidation();
             this.setKeyboardInput( false );
             this.$store.state.controls.addExternalLayerModel = false;
+        },
+        setDefaultSearchParamsIfNotSet( params, key, value ) {
+            if ( !params.has( key ) ) {
+                params.set( key, value );
+            }
+        },
+        setSearchParamCase( params, uppercase = false ) {
+            for ( const [ key, val ] of [ ...params ] ) {
+                params.delete( key );
+                params.set( uppercase ? key.toUpperCase() : key.toLowerCase(), val );
+            }
+        },
+        formatWmsUrl( url, uppercase = false ) {
+            const wmsUrl = new URL( url );
+
+            this.setSearchParamCase( wmsUrl.searchParams, false );
+
+            wmsUrl.searchParams.set( 'bbox', '{bbox-epsg-3857}' );
+            this.setDefaultSearchParamsIfNotSet( wmsUrl.searchParams, 'format', 'image/jpeg' );
+            this.setDefaultSearchParamsIfNotSet( wmsUrl.searchParams, 'service', 'WMS' );
+            this.setDefaultSearchParamsIfNotSet( wmsUrl.searchParams, 'version', '1.1.1' );
+            this.setDefaultSearchParamsIfNotSet( wmsUrl.searchParams, 'request', 'GetMap' );
+            this.setDefaultSearchParamsIfNotSet( wmsUrl.searchParams, 'srs', 'EPSG:3857' );
+            this.setDefaultSearchParamsIfNotSet( wmsUrl.searchParams, 'width', '256' );
+            this.setDefaultSearchParamsIfNotSet( wmsUrl.searchParams, 'height', '256' );
+
+            this.setSearchParamCase( wmsUrl.searchParams, uppercase );
+
+            wmsUrl.search = decodeURIComponent( wmsUrl.search );
+
+            return wmsUrl;
         },
         async submitForm() {
             if ( !this.validate() ) {
                 return;
             }
 
-            const exactData = await this.$api.getData( {
-                table: 'target_object',
-                where: `object_name = '${ this.object_name }'`,
-                select: 'object_name'
+            // example:
+            // https://img.nj.gov/imagerywms/Natural2015?
+            //  bbox={bbox-epsg-3857}&
+            //  format=image/png&
+            //  service=WMS&
+            //  version=1.1.1&
+            //  request=GetMap&
+            //  srs=EPSG:3857&
+            //  transparent=true&
+            //  width=256&
+            //  height=256&
+            //  layers=Natural2015
+
+            const name       = `${ this.layerName }-${ uuid.v4() }`;
+            const sourceName = `source-${ name }`;
+            const layerName  = `layer-${ name }`;
+
+            const url = this.formatWmsUrl( this.layerUrl, this.isQuerystringUppercase );
+            console.log( url );
+            console.log( url.href );
+            this.$store.state.map.mapObject.addSource( sourceName, {
+                type: 'raster',
+                tiles: [ url.href ],
+                tileSize: 256
             } );
 
-            if ( exactData ) {
-                this.errorMessage = `${ this.object_name } already exists`;
-                return;
-            }
-
-            const similarData = await this.$api.getData( {
-                table: 'target_object',
-                where: `object_name SIMILAR TO '%${ this.object_name }%'`,
-                select: 'object_name'
-            } );
-
-            if ( similarData && similarData.length && !this.userWarnedAboutDuplicate ) {
-                this.userWarnedAboutDuplicate = true;
-                this.errorMessage             = [
-                    'the following objects appear to be similar:',
-                    ...similarData.map( i => `"${ i.object_name }"` ),
-                    `are you sure you want to create "${ this.object_name }"?`
-                ].join( '<br/>' );
-
-                return;
-            }
-
-            await this.$api.createTargetObjects( {
-                object_name: this.object_name,
-                object_description: this.object_description,
-                classification: this.fullClassification
-            } );
+            this.$store.state.map.mapObject.addLayer(
+                {
+                    id: layerName,
+                    type: 'raster',
+                    source: sourceName,
+                    paint: {}
+                },
+                this.$store.state.map.mapAoiLayerId
+            );
 
             this.closeWindow();
-
-            // TODO:: emit something to show successful creation
         }
     }
 };

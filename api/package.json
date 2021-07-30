@@ -9,7 +9,7 @@
         "start": "pm2-runtime start ecosystem.config.js",
         "start:dev": "pm2 start ecosystem.config.js --env development",
         "start:prod": "pm2 start ecosystem.config.js --env production",
-        "stop:dev": "pm2 delete ecosystem.config.js",
+        "stop": "pm2 delete ecosystem.config.js",
         "clean": "rm -rf ./make/*",
         "lint": "eslint .",
         "test": "nyc mocha"
@@ -28,6 +28,7 @@
         "chai": "^4.3.4",
         "chai-http": "^4.3.0",
         "esbuild": "^0.11.21",
+        "esbuild-node-externals": "^1.3.0",
         "eslint": "^7.26.0",
         "mocha": "^8.4.0",
         "nyc": "^15.1.0"

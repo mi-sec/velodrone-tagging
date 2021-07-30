@@ -22,6 +22,21 @@ Vue.use( {
                 }
             },
 
+            async getAuth() {
+                try {
+                    const { data } = await $axios( {
+                        method: 'get',
+                        baseURL: 'https://e6zjru6lv8.execute-api.us-east-1.amazonaws.com/',
+                        url: '/profile'
+                    } );
+
+                    return data;
+                }
+                catch ( e ) {
+                    $logger.error( e );
+                }
+            },
+
             async getFeatures( id = 'all', operation = '', params = {} ) {
                 try {
                     const { data } = await $axios( {

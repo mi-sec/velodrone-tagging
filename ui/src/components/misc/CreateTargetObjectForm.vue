@@ -1,6 +1,6 @@
 <template>
     <v-dialog
-        v-model="isOpen"
+        v-model="$store.state.targetObjectModal"
         persistent
         max-width="400"
     >
@@ -120,15 +120,7 @@ export default {
         };
     },
     computed: {
-        ...mapState( 'map', [ 'targetObjects' ] ),
-        isOpen: {
-            get() {
-                return this.$store.state.map.targetObjectModal;
-            },
-            set( v ) {
-                this.$store.state.map.targetObjectModal = v;
-            }
-        },
+        // ...mapState( 'map', [ 'targetObjects' ] ),
         fullClassification() {
             const result = [ this.classification ];
 
@@ -157,11 +149,11 @@ export default {
             this.scicontrols              = '';
             this.errorMessage             = '';
             this.userWarnedAboutDuplicate = false;
-            this.isOpen                   = false;
             this.valid                    = false;
 
             this.$refs.form.resetValidation();
             this.setKeyboardInput( false );
+            this.$store.state.targetObjectModal = false;
         },
         async submitForm() {
             if ( !this.validate() ) {

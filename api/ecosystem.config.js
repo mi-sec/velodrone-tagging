@@ -2,7 +2,7 @@
 
 const
     { name }     = require( './package.json' ),
-    { resolve }  = require( 'path' ),
+    path         = require( 'path' ),
     isProduction = process.argv.includes( 'production' );
 
 require( 'dotenv' ).config();
@@ -10,11 +10,12 @@ require( 'dotenv' ).config();
 const apps = [
     {
         name,
-        script: resolve( __dirname, isProduction ? './api.js' : './src/entrypoint.api.js' ),
+        script: path.resolve( __dirname, isProduction ? './api.js' : './src/entrypoint.api.js' ),
         exec_mode: 'cluster',
         instances: isProduction ? 0 : 1,
         instance_var: 'INSTANCE_ID',
         watch: !isProduction,
+        cwd: __dirname,
         ignore_watch: [
             '.git',
             '.nyc_output',

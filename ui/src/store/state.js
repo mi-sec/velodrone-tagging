@@ -25,6 +25,9 @@ export default {
         addExternalLayerModel: false
     },
 
+    targetObjects: [],
+    targetObjectModal: null,
+
     map: {
         mapObject: null,
         // the id of the source on mapbox canvas
@@ -57,10 +60,6 @@ export default {
         mapLocked: false,
 
         currentGeohash: '',
-
-        targetObjects: [],
-
-        targetObjectModal: null,
 
         draw: {
             drawObject: null,

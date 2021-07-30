@@ -15,6 +15,8 @@ const argsMap = args.reduce( ( map, arg ) => {
     return map;
 }, new Map() );
 
+const { nodeExternalsPlugin } = require( 'esbuild-node-externals' );
+
 require( 'esbuild' ).build( {
     entryPoints: {
         api: 'entrypoint.api.js'
@@ -23,6 +25,10 @@ require( 'esbuild' ).build( {
     platform: 'node',
     outdir: path.resolve( './make' ),
     bundle: argsMap.get( 'bundle' ),
-    minify: argsMap.get( 'minify' )
+    minify: argsMap.get( 'minify' ),
+    plugins: [ nodeExternalsPlugin() ]
 } )
-    .catch( () => process.exit( 1 ) );
+    .catch( ( e ) => {
+        console.error( e );
+        process.exit( 1 );
+    } );

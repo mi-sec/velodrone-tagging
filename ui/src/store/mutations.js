@@ -6,6 +6,10 @@ export default {
         state.config = appConfig;
     },
 
+    commitTargetObjectList( state, data ) {
+        state.targetObjects = data;
+    },
+
     // query the on-map aoi layer items
     addMapAoi( state ) {
         this.$logger.trace( 'mutations.addMapAoi' );
